@@ -13,8 +13,11 @@ import (
 	platform "github.com/influxdata/influxdb"
 	pcontext "github.com/influxdata/influxdb/context"
 	"github.com/influxdata/influxdb/inmem"
+	"github.com/influxdata/influxdb/kit/errors"
 	"github.com/influxdata/influxdb/mock"
-	platformtesting "github.com/influxdata/influxdb/testing"
+
+	pcontext "github.com/influxdata/platform/context"
+	platformtesting "github.com/influxdata/platform/testing"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -387,6 +390,9 @@ func TestService_handlePostAuthorization(t *testing.T) {
 				},
 				UserService: &mock.UserService{
 					FindUserByIDFn: func(ctx context.Context, id platform.ID) (*platform.User, error) {
+						if !id.Valid() {
+							return nil, errors.New("invalid ID")
+						}
 						return &platform.User{
 							ID:   id,
 							Name: "u1",
@@ -395,6 +401,9 @@ func TestService_handlePostAuthorization(t *testing.T) {
 				},
 				OrganizationService: &mock.OrganizationService{
 					FindOrganizationByIDF: func(ctx context.Context, id platform.ID) (*platform.Organization, error) {
+						if !id.Valid() {
+							return nil, errors.New("invalid ID")
+						}
 						return &platform.Organization{
 							ID:   id,
 							Name: "o1",
@@ -418,7 +427,6 @@ func TestService_handlePostAuthorization(t *testing.T) {
 				},
 				authorization: &platform.Authorization{
 					ID:          platformtesting.MustIDBase16("020f755c3c082000"),
-					UserID:      platformtesting.MustIDBase16("aaaaaaaaaaaaaaaa"),
 					OrgID:       platformtesting.MustIDBase16("020f755c3c083000"),
 					Description: "only read dashboards sucka",
 					Permissions: []platform.Permission{
@@ -460,7 +468,11 @@ func TestService_handlePostAuthorization(t *testing.T) {
 			h.UserService = tt.fields.UserService
 			h.OrganizationService = tt.fields.OrganizationService
 
-			b, err := json.Marshal(tt.args.authorization)
+			req, err := newPostAuthorizationRequest(tt.args.authorization)
+			if err != nil {
+				t.Fatalf("failed to create new authorization request: %v", err)
+			}
+			b, err := json.Marshal(req)
 			if err != nil {
 				t.Fatalf("failed to unmarshal authorization: %v", err)
 			}

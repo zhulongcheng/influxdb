@@ -164,7 +164,7 @@ func (h *AuthorizationHandler) handlePostAuthorization(w http.ResponseWriter, r 
 	}
 
 	if err := encodeResponse(ctx, w, http.StatusCreated, newAuthResponse(auth, org, user, perms)); err != nil {
-		EncodeError(ctx, err, w)
+		logEncodingError(h.Logger, r, err)
 		return
 	}
 }
