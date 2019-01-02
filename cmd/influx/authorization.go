@@ -23,7 +23,7 @@ var authorizationCmd = &cobra.Command{
 
 // AuthorizationCreateFlags are command line args used when creating a authorization
 type AuthorizationCreateFlags struct {
-	user string
+	org string
 
 	createUserPermission bool
 	deleteUserPermission bool
@@ -41,8 +41,8 @@ func init() {
 		RunE:  authorizationCreateF,
 	}
 
-	authorizationCreateCmd.Flags().StringVarP(&authorizationCreateFlags.user, "user", "u", "", "user name (required)")
-	authorizationCreateCmd.MarkFlagRequired("user")
+	authorizationCreateCmd.Flags().StringVarP(&authorizationCreateFlags.org, "org", "o", "", "organization name (required)")
+	authorizationCreateCmd.MarkFlagRequired("org")
 
 	authorizationCreateCmd.Flags().BoolVarP(&authorizationCreateFlags.createUserPermission, "create-user", "", false, "grants the permission to create users")
 	authorizationCreateCmd.Flags().BoolVarP(&authorizationCreateFlags.deleteUserPermission, "delete-user", "", false, "grants the permission to delete users")
@@ -98,8 +98,22 @@ func authorizationCreateF(cmd *cobra.Command, args []string) error {
 		permissions = append(permissions, *p)
 	}
 
+	// TODO(desa): ideally this should be done in a single request
+	orgSvc, err := newOrganizationService(flags)
+	if err != nil {
+		return err
+	}
+	orgFilter := platform.OrganizationFilter{
+		Name: &authorizationCreateFlags.org,
+	}
+	org, err := orgSvc.FindOrganization(context.Background(), orgFilter)
+	if err != nil {
+		return err
+	}
+
 	authorization := &platform.Authorization{
 		Permissions: permissions,
+		OrgID:       org.ID,
 	}
 
 	s, err := newAuthorizationService(flags)
@@ -116,8 +130,8 @@ func authorizationCreateF(cmd *cobra.Command, args []string) error {
 		"ID",
 		"Token",
 		"Status",
-		"User",
 		"UserID",
+		"OrgID",
 		"Permissions",
 	)
 
@@ -131,6 +145,7 @@ func authorizationCreateF(cmd *cobra.Command, args []string) error {
 		"Token":       authorization.Token,
 		"Status":      authorization.Status,
 		"UserID":      authorization.UserID.String(),
+		"OrgID":       authorization.OrgID.String(),
 		"Permissions": ps,
 	})
 
