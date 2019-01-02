@@ -23,7 +23,8 @@ var authorizationCmd = &cobra.Command{
 
 // AuthorizationCreateFlags are command line args used when creating a authorization
 type AuthorizationCreateFlags struct {
-	org string
+	user string
+	org  string
 
 	createUserPermission bool
 	deleteUserPermission bool
@@ -43,6 +44,8 @@ func init() {
 
 	authorizationCreateCmd.Flags().StringVarP(&authorizationCreateFlags.org, "org", "o", "", "organization name (required)")
 	authorizationCreateCmd.MarkFlagRequired("org")
+
+	authorizationCreateCmd.Flags().StringVarP(&authorizationCreateFlags.user, "user", "u", "", "user name (required)")
 
 	authorizationCreateCmd.Flags().BoolVarP(&authorizationCreateFlags.createUserPermission, "create-user", "", false, "grants the permission to create users")
 	authorizationCreateCmd.Flags().BoolVarP(&authorizationCreateFlags.deleteUserPermission, "delete-user", "", false, "grants the permission to delete users")
@@ -114,6 +117,23 @@ func authorizationCreateF(cmd *cobra.Command, args []string) error {
 	authorization := &platform.Authorization{
 		Permissions: permissions,
 		OrgID:       org.ID,
+	}
+
+	if authorizationCreateFlags.user != "" {
+		// if the user flag is supplied, the set the user ID explicitly on the request
+		userSvc, err := newUserService(flags)
+		if err != nil {
+			return err
+		}
+		userFilter := platform.UserFilter{
+			Name: &authorizationCreateFlags.user,
+		}
+		user, err := userSvc.FindUser(context.Background(), userFilter)
+		if err != nil {
+			return err
+		}
+
+		authorization.UserID = user.ID
 	}
 
 	s, err := newAuthorizationService(flags)
