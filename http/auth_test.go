@@ -390,7 +390,7 @@ func TestService_handlePostAuthorization(t *testing.T) {
 				UserService: &mock.UserService{
 					FindUserByIDFn: func(ctx context.Context, id platform.ID) (*platform.User, error) {
 						if !id.Valid() {
-							return nil, errors.New("invalid ID")
+							return nil, platform.ErrInvalidID
 						}
 						return &platform.User{
 							ID:   id,
@@ -401,7 +401,7 @@ func TestService_handlePostAuthorization(t *testing.T) {
 				OrganizationService: &mock.OrganizationService{
 					FindOrganizationByIDF: func(ctx context.Context, id platform.ID) (*platform.Organization, error) {
 						if !id.Valid() {
-							return nil, errors.New("invalid ID")
+							return nil, platform.ErrInvalidID
 						}
 						return &platform.Organization{
 							ID:   id,
