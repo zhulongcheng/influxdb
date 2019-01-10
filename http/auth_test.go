@@ -16,8 +16,7 @@ import (
 	"github.com/influxdata/influxdb/kit/errors"
 	"github.com/influxdata/influxdb/mock"
 
-	pcontext "github.com/influxdata/platform/context"
-	platformtesting "github.com/influxdata/platform/testing"
+	platformtesting "github.com/influxdata/influxdb/testing"
 	"github.com/julienschmidt/httprouter"
 )
 
