@@ -1,4 +1,4 @@
-package inputs
+package v1
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/influxdata/flux/execute"
 	"github.com/influxdata/flux/memory"
 	"github.com/influxdata/flux/plan"
-	"github.com/influxdata/flux/semantic"
+	"github.com/influxdata/flux/stdlib/influxdata/influxdb/v1"
 	"github.com/influxdata/flux/stdlib/inputs"
 	"github.com/influxdata/flux/values"
 	platform "github.com/influxdata/influxdb"
@@ -16,17 +16,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-const DatabasesKind = "databases"
+const DatabasesKind = v1.DatabasesKind
 
 type DatabasesOpSpec struct {
 }
 
 func init() {
-	databasesSignature := semantic.FunctionPolySignature{
-		Return: flux.TableObjectType,
-	}
-
-	flux.RegisterFunction(DatabasesKind, createDatabasesOpSpec, databasesSignature)
+	flux.ReplacePackageValue("influxdata/influxdb/v1", DatabasesKind, flux.FunctionValue(DatabasesKind, createDatabasesOpSpec, v1.DatabasesSignature))
 	flux.RegisterOpSpec(DatabasesKind, newDatabasesOp)
 	plan.RegisterProcedureSpec(DatabasesKind, newDatabasesProcedure, DatabasesKind)
 }

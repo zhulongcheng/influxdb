@@ -1,4 +1,4 @@
-package inputs
+package influxdb
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"github.com/influxdata/flux/stdlib/influxdata/influxdb"
 	platform "github.com/influxdata/influxdb"
 	"github.com/influxdata/influxdb/query"
-	"github.com/influxdata/influxdb/query/functions/inputs/storage"
 	"github.com/pkg/errors"
 )
 
@@ -44,7 +43,7 @@ func createFromSource(prSpec plan.ProcedureSpec, dsid execute.DatasetID, a execu
 	}
 	currentTime := w.Start + execute.Time(w.Period)
 
-	deps := a.Dependencies()[influxdb.FromKind].(storage.Dependencies)
+	deps := a.Dependencies()[influxdb.FromKind].(Dependencies)
 	req := query.RequestFromContext(a.Context())
 	if req == nil {
 		return nil, errors.New("missing request on context")
@@ -67,10 +66,10 @@ func createFromSource(prSpec plan.ProcedureSpec, dsid execute.DatasetID, a execu
 		}
 	}
 
-	return storage.NewSource(
+	return NewSource(
 		dsid,
 		deps.Reader,
-		storage.ReadSpec{
+		ReadSpec{
 			OrganizationID:  orgID,
 			BucketID:        bucketID,
 			Predicate:       spec.Filter,
@@ -79,7 +78,7 @@ func createFromSource(prSpec plan.ProcedureSpec, dsid execute.DatasetID, a execu
 			SeriesOffset:    spec.SeriesOffset,
 			Descending:      spec.Descending,
 			OrderByTime:     spec.OrderByTime,
-			GroupMode:       storage.ToGroupMode(spec.GroupMode),
+			GroupMode:       ToGroupMode(spec.GroupMode),
 			GroupKeys:       spec.GroupKeys,
 			AggregateMethod: spec.AggregateMethod,
 		},
@@ -89,7 +88,7 @@ func createFromSource(prSpec plan.ProcedureSpec, dsid execute.DatasetID, a execu
 	), nil
 }
 
-func InjectFromDependencies(depsMap execute.Dependencies, deps storage.Dependencies) error {
+func InjectFromDependencies(depsMap execute.Dependencies, deps Dependencies) error {
 	if err := deps.Validate(); err != nil {
 		return err
 	}

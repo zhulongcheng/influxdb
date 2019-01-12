@@ -155,3 +155,5 @@ replace (
 )
 
 replace github.com/influxdata/platform => /dev/null
+
+replace github.com/influxdata/flux => ../flux

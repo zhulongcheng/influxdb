@@ -1,4 +1,4 @@
-package inputs_test
+package influxdb_test
 
 import (
 	"testing"

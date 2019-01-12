@@ -21,12 +21,10 @@ import (
 	"github.com/influxdata/influxdb/query"
 
 	_ "github.com/influxdata/flux/options" // Import the built-in options
-	_ "github.com/influxdata/flux/stdlib"  // Import the built-in functions
+	_ "github.com/influxdata/flux/stdlib"  // Import the stdlib
 	_ "github.com/influxdata/flux/stdlib/tests"
-	_ "github.com/influxdata/influxdb/query/functions" // Import the built-in functions
-	_ "github.com/influxdata/influxdb/query/functions/inputs"
-	_ "github.com/influxdata/influxdb/query/functions/outputs"
 	_ "github.com/influxdata/influxdb/query/options" // Import the built-in options
+	_ "github.com/influxdata/influxdb/query/stdlib"  // Import the query/stdlib
 )
 
 // Default context.

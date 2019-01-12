@@ -1,4 +1,4 @@
-package outputs
+package influxdb
 
 import (
 	"context"
@@ -18,7 +18,6 @@ import (
 	"github.com/influxdata/flux/values"
 	platform "github.com/influxdata/influxdb"
 	"github.com/influxdata/influxdb/models"
-	istorage "github.com/influxdata/influxdb/query/functions/inputs/storage"
 	"github.com/influxdata/influxdb/storage"
 	"github.com/influxdata/influxdb/tsdb"
 )
@@ -381,8 +380,8 @@ func InjectToDependencies(depsMap execute.Dependencies, deps ToDependencies) err
 
 // ToDependencies contains the dependencies for executing the `to` function.
 type ToDependencies struct {
-	BucketLookup       istorage.BucketLookup
-	OrganizationLookup istorage.OrganizationLookup
+	BucketLookup       BucketLookup
+	OrganizationLookup OrganizationLookup
 	PointsWriter       storage.PointsWriter
 }
 

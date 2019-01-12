@@ -1,5 +1,4 @@
-// Package storage implements reading from a storage engine into a table as a data source.
-package storage
+package influxdb
 
 import (
 	"context"

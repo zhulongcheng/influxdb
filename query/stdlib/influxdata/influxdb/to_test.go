@@ -1,4 +1,4 @@
-package outputs_test
+package influxdb_test
 
 import (
 	"context"
@@ -10,13 +10,13 @@ import (
 	"github.com/influxdata/flux/execute"
 	"github.com/influxdata/flux/execute/executetest"
 	"github.com/influxdata/flux/semantic"
-	"github.com/influxdata/flux/stdlib/influxdata/influxdb"
+	finfluxdb "github.com/influxdata/flux/stdlib/influxdata/influxdb"
 	platform "github.com/influxdata/influxdb"
 	"github.com/influxdata/influxdb/mock"
 	"github.com/influxdata/influxdb/models"
 	_ "github.com/influxdata/influxdb/query/builtin"
-	"github.com/influxdata/influxdb/query/functions/outputs"
 	"github.com/influxdata/influxdb/query/querytest"
+	"github.com/influxdata/influxdb/query/stdlib/influxdata/influxdb"
 	"github.com/influxdata/influxdb/tsdb"
 )
 
@@ -29,19 +29,19 @@ func TestTo_Query(t *testing.T) {
 				Operations: []*flux.Operation{
 					{
 						ID: "from0",
-						Spec: &influxdb.FromOpSpec{
+						Spec: &finfluxdb.FromOpSpec{
 							Bucket: "mydb",
 						},
 					},
 					{
 						ID: "to1",
-						Spec: &outputs.ToOpSpec{
+						Spec: &influxdb.ToOpSpec{
 							Bucket:            "series1",
 							Org:               "fred",
 							Host:              "localhost",
 							Token:             "auth-token",
 							TimeColumn:        execute.DefaultTimeColLabel,
-							MeasurementColumn: outputs.DefaultMeasurementColLabel,
+							MeasurementColumn: influxdb.DefaultMeasurementColLabel,
 							FieldFn: &semantic.FunctionExpression{
 								Block: &semantic.FunctionBlock{
 									Parameters: &semantic.FunctionParameters{
@@ -115,14 +115,14 @@ func TestTo_Process(t *testing.T) {
 	}
 	testCases := []struct {
 		name string
-		spec *outputs.ToProcedureSpec
+		spec *influxdb.ToProcedureSpec
 		data []flux.Table
 		want wanted
 	}{
 		{
 			name: "default case",
-			spec: &outputs.ToProcedureSpec{
-				Spec: &outputs.ToOpSpec{
+			spec: &influxdb.ToProcedureSpec{
+				Spec: &influxdb.ToOpSpec{
 					Org:               "my-org",
 					Bucket:            "my-bucket",
 					TimeColumn:        "_time",
@@ -175,8 +175,8 @@ c _value=4.0 41`),
 		},
 		{
 			name: "no _measurement with multiple tag columns",
-			spec: &outputs.ToProcedureSpec{
-				Spec: &outputs.ToOpSpec{
+			spec: &influxdb.ToProcedureSpec{
+				Spec: &influxdb.ToOpSpec{
 					Org:               "my-org",
 					Bucket:            "my-bucket",
 					TimeColumn:        "_time",
@@ -227,8 +227,8 @@ c,tag2=ee _value=4.0 41`),
 		},
 		{
 			name: "explicit tags",
-			spec: &outputs.ToProcedureSpec{
-				Spec: &outputs.ToOpSpec{
+			spec: &influxdb.ToProcedureSpec{
+				Spec: &influxdb.ToOpSpec{
 					Org:               "my-org",
 					Bucket:            "my-bucket",
 					TimeColumn:        "_time",
@@ -282,8 +282,8 @@ m,tag1=c,tag2=ee _value=4.0 41`),
 		},
 		{
 			name: "explicit field function",
-			spec: &outputs.ToProcedureSpec{
-				Spec: &outputs.ToOpSpec{
+			spec: &influxdb.ToProcedureSpec{
+				Spec: &influxdb.ToOpSpec{
 					Org:               "my-org",
 					Bucket:            "my-bucket",
 					TimeColumn:        "_time",
@@ -352,8 +352,8 @@ c temperature=4.0 41`),
 		},
 		{
 			name: "infer tags from complex field function",
-			spec: &outputs.ToProcedureSpec{
-				Spec: &outputs.ToOpSpec{
+			spec: &influxdb.ToProcedureSpec{
+				Spec: &influxdb.ToOpSpec{
 					Org:               "my-org",
 					Bucket:            "my-bucket",
 					TimeColumn:        "_time",
@@ -454,8 +454,8 @@ c day="Friday",humidity=5.0,ratio=0.8,temperature=4.0 41`),
 		},
 		{
 			name: "explicit tag columns, multiple values in field function, and extra columns",
-			spec: &outputs.ToProcedureSpec{
-				Spec: &outputs.ToOpSpec{
+			spec: &influxdb.ToProcedureSpec{
+				Spec: &influxdb.ToOpSpec{
 					Org:               "my-org",
 					Bucket:            "my-bucket",
 					TimeColumn:        "_time",
@@ -554,7 +554,7 @@ c,tag2=e humidity=65i,temperature=4.0 41`),
 				tc.want.tables,
 				nil,
 				func(d execute.Dataset, c execute.TableBuilderCache) execute.Transformation {
-					newT, _ := outputs.NewToTransformation(d, c, tc.spec, deps)
+					newT, _ := influxdb.NewToTransformation(d, c, tc.spec, deps)
 					return newT
 				},
 			)
@@ -574,8 +574,8 @@ c,tag2=e humidity=65i,temperature=4.0 41`),
 	}
 }
 
-func mockDependencies() outputs.ToDependencies {
-	return outputs.ToDependencies{
+func mockDependencies() influxdb.ToDependencies {
+	return influxdb.ToDependencies{
 		BucketLookup:       mockBucketLookup{},
 		OrganizationLookup: mockOrgLookup{},
 		PointsWriter:       new(mock.PointsWriter),
