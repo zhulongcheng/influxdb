@@ -49,7 +49,7 @@ class SaveAsButton extends PureComponent<Props, State> {
           titleText="Save your query as a Dashboard Cell or a Task"
         />
         <OverlayTechnology visible={isOverlayVisible}>
-          <OverlayContainer>
+          <OverlayContainer maxWidth={600}>
             <OverlayHeading
               title="Save As"
               onDismiss={this.handleHideOverlay}
@@ -76,7 +76,9 @@ class SaveAsButton extends PureComponent<Props, State> {
               {saveAsOption === SaveAsOption.Dashboard && (
                 <SaveAsCellForm dismiss={this.handleHideOverlay} />
               )}
-              {saveAsOption === SaveAsOption.Task && <SaveAsTaskForm />}
+              {saveAsOption === SaveAsOption.Task && (
+                <SaveAsTaskForm dismiss={this.handleHideOverlay} />
+              )}
             </OverlayBody>
           </OverlayContainer>
         </OverlayTechnology>
