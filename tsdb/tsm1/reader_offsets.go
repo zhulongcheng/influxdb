@@ -23,6 +23,7 @@ type prefixEntry struct {
 
 // prefix is a byte prefix of a key that sorts the same way the key does.
 type prefix [8]byte
+//type prefix [16]byte
 
 const prefixSize = len(prefix{})
 
@@ -219,18 +220,27 @@ func (ri *readerOffsetsIterator) Seek(key []byte, b *faultBuffer) (exact, ok boo
 		pi = ri.r.searchPrefix(h)
 		ri.setIndex(h, pi)
 
+		//fmt.Printf("Seek for, pre:%v, k: %v, i: %d, j: %d, h: %d, pi: %d, len-prefix: %d \n", pre, key, i, j, h, pi, len(ri.r.prefixes))
+
 		switch ri.Compare(key, pre, b) {
 		case -1:
 			i = h + 1
+			//i = h
 		case 1:
 			j = h
 		default:
 			return true, true
 		}
+
+		//fmt.Printf("Seek for, pre:%v, k: %v, i: %d, j: %d, h: %d \n", pre, key, i, j, h)
+
 	}
+
+	//fmt.Printf("Seek after for, pre:%v, k: %v, i: %d, j: %d,  \n", pre, key, i, j)
 
 	ri.setIndex(i, pi)
 	if ri.i >= len(ri.r.offsets) {
+		//fmt.Printf("Seek, i: %d, key: %v \n", ri.i, key)
 		return false, false
 	}
 

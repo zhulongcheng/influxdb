@@ -1224,6 +1224,11 @@ func EscapeMeasurement(in []byte) []byte {
 	for _, c := range measurementEscapeCodes {
 		if bytes.IndexByte(in, c.k[0]) != -1 {
 			in = bytes.Replace(in, c.k[:], c.esc[:], -1)
+			//fmt.Printf("EscapeMeasurement name: %v \n", c.k[0])
+			//fmt.Printf("EscapeMeasurement name: %s \n", c.k[:])
+			//fmt.Printf("EscapeMeasurement name: %v \n", c.k[:])
+			//fmt.Printf("EscapeMeasurement name: %v \n", c.esc[:])
+			//fmt.Printf("EscapeMeasurement name: %s \n", c.esc[:])
 		}
 	}
 	return in
@@ -1630,7 +1635,17 @@ func MakeKey(name []byte, tags Tags) []byte {
 func AppendMakeKey(dst []byte, name []byte, tags Tags) []byte {
 	// unescape the name and then re-escape it to avoid double escaping.
 	// The key should always be stored in escaped form.
-	dst = append(dst, EscapeMeasurement(UnescapeMeasurement(name))...)
+
+	//dst = append(dst, EscapeMeasurement(UnescapeMeasurement(name))...)
+	dst = append(dst, name...)
+
+	//es :=  EscapeMeasurement(UnescapeMeasurement(name))
+
+	//fmt.Printf("AppendMakeKey name: %v \n", name)
+	//fmt.Printf("AppendMakeKey es: %v \n", es)
+	//fmt.Printf("AppendMakeKey es: %v \n", UnescapeMeasurement(name))
+
+	//dst = append(dst, name...)
 	dst = tags.AppendHashKey(dst)
 	return dst
 }
